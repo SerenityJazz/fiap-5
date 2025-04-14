@@ -535,7 +535,7 @@ def process_video(
     summary_msg = (
         f"🔔 Video analysis complete: {video_path}\n"
         f"📹 Total frames: {frame_number}\n"
-        f"⚠️  Frames with detections: {detection_frames}\n"
+        f"⚠️ Frames with detections: {detection_frames}\n"
         f"🧨 Total detected sharp items: {total_detections}"
     )
     send_telegram_message(summary_msg)
