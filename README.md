@@ -44,49 +44,63 @@ torchvision @ https://download.pytorch.org/whl/cu124/torchvision-0.21.0%2Bcu124-
 
 ## Dataset
 
-### 1. Download
+### 1. Organização
 
-Primeiro, realizamos o *download* do dataset para depois extraírmos.
+Preparamos a estrutura de pastas
+
+```bash
+mkdir -p dataset_binary/unsafe
+mkdir -p dataset_binary/safe
+```
+
+### 2. *Download*
+
+Realizamos o *download* do primeiro dataset e depois extraimos.
 
 ```bash
 wget -O dataset.zip "https://drive.usercontent.google.com/download?id=1Szc920DAh5kU8Qk38Doq0znEVR1QmTZS&export=download&confirm=t"
 unzip dataset.zip
 ```
 
-###  2. Organização
+Movemos os arquivos desejados para a estrutura criada
 
-Para um melhor entendimento, traduzimos os nomes das pastas para o inglês.
-
-```bash
-cp -r "/content/OD-WeaponDetection-master/Weapons and similar handled objects/Sohas_weapon-Classification" ./dataset
-
-mv dataset/monedero/ dataset/wallet/
-mv dataset/tarjeta/ dataset/card/
-mv dataset/billete/ dataset/cash/
+```py
+import os
+for dirname, dirpaths, filenames in os.walk('./OD-WeaponDetection-master/Knife classification'):
+    if len(dirpaths) != 0:
+        continue
+    
+    if 'AAAKnife' in dirname:    
+        os.system(f'cp "{dirname}/*" dataset_binary/unsafe')
+    else:
+        os.system(f'cp "{dirname}/*" dataset_binary/safe')
 ```
 
-### 3. Configurar pastas para classificação binária
+Depois realizamos o download dos datasets restantes.
 
-Preparamos a estrutura de pastas entre objetos cortantes (unsafe) e não-cortantes (safe)
+A origem destes arquivos vieram da plataforma RoboFlow, onde foi preciso realizar o download prévio após cadastrar uma conta, e importá-los para o notebook
+
+Estes datasets contém mais imagens de objetos cortantes, onde podemos adicionar à nossa estrutura existente
 
 ```bash
-cp -r dataset dataset_binary
+unzip -n './Company2.v1i.multiclass.zip' -d dataset_1
+unzip -n './cutter.v2i.multiclass.zip' -d dataset_2
+unzip -n './Facas_Tesouras.v1i.multiclass.zip' -d dataset_3
+unzip -n './knife detect.v4i.multiclass.zip' -d dataset_4
+unzip -n './Knife detection.v3i.multiclass.zip' -d dataset_5
+unzip -n './Knife.v1i.multiclass.zip' -d dataset_6
+unzip -n './PROJECT2.0.v1i.multiclass.zip' -d dataset_7
+unzip -n './Tugas Machine Learning Wira B1.v1i.multiclass.zip' -d dataset_8
 
-mkdir dataset_binary/safe
-mkdir dataset_binary/unsafe
-
-mv dataset_binary/wallet/* dataset_binary/safe
-mv dataset_binary/card/* dataset_binary/safe
-mv dataset_binary/cash/* dataset_binary/safe
-mv dataset_binary/smartphone/* dataset_binary/safe
-
-mv dataset_binary/knife/* dataset_binary/unsafe
-mv dataset_binary/pistol/* dataset_binary/unsafe
-
-rm -rf dataset_binary/knife
-rm -rf dataset_binary/pistol
+cp -r dataset_*/train/* dataset_binary/unsafe
+cp -r dataset_*/valid/* dataset_binary/unsafe
+cp -r dataset_*/test/* dataset_binary/unsafe
 ```
-### 4. Estrutura final de pastas
+
+### 3. Estrutura final de pastas
+
+Com isso, já possuimos a estrutura que nosso modelo irá usar
+
 ```
 dataset_binary/
 ├── safe/ (wallet, cash, card, smartphone)
@@ -99,31 +113,54 @@ dataset_binary/
 
 ## Sistema de alerta (Bot do Telegram)
 
+Foram definidas duas funções, uma para enviar um texto e outra para enviar o arquivo de vídeo.
+
+Para usar a API do Telegram, é preciso obter as credenciais do bot e o ID do usuário que receberá as mensagens
+
+Uma vez que esses valores foram obtidos, é preciso que estes sejam definidos como variáveis de ambiente
+
 ```py
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
-TELEGRAM_USER_ID = os.environ.get("TELEGRAM_USER_ID")
+USER_ID = os.environ.get('USER_ID')
+```
 
+```py
+def send_telegram_video(file_path: str, caption: str = ""):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo"
+    payload = {
+        "chat_id": USER_ID,
+        "caption": caption
+    }
+    files = {
+        "video": open(file_path, "rb")
+    }
+
+    try:
+        response = requests.post(url, data=payload, files=files)
+        if response.status_code != 200:
+            print("❌ Error sending video:", response.text)
+        else:
+            print("✅ Video sent successfully")
+    except Exception as e:
+        print("❌ Exception:", e)
+```
+
+```py
 def send_telegram_message(message: str):
-    if not TELEGRAM_TOKEN or not TELEGRAM_USER_ID:
-        print("Telegram credentials not set. Skipping message.")
-        print(message)
-        return
-
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {
-        "chat_id": TELEGRAM_USER_ID,
+        "chat_id": USER_ID,
         "text": message
     }
 
     try:
         response = requests.post(url, data=payload)
         if response.status_code != 200:
-            print("Telegram error:", response.text)
+            print("❌ Telegram error:", response.text)
         else:
-            print("Telegram message sent ✅")
+            print("✅ Telegram message sent")
     except Exception as e:
-        print("Telegram exception:", e)
-
+        print("❌ Telegram exception:", e)
 ```
 
 
@@ -282,8 +319,6 @@ print(f"Eval Accuracy: {accuracy * 100:.2f}%")
 ### 5. Testes
 
 #### 5.1. Imagens restantes do dataset
-
-The notebook includes optional code to integrate with a Telegram bot. When deployed, the bot can receive an image and respond with a detection result (safe or unsafe), making it suitable for real-time applications.
 
 ```py
 def detect_objects_batch(
@@ -542,6 +577,13 @@ def process_video(
 ```
 
 ```py
-process_video(model, 'video_1.mp4', rows=2, cols=3, scales=[1.0, 0.9], threshold=0.9999)
-process_video(model, 'video_2.mp4', rows=2, cols=3, scales=[1.0, 0.9], threshold=0.999)
+model = SharpItemDetection().to(device)
+model.load_state_dict(torch.load(MODEL_CHECKPOINT, map_location=device))
+model.eval()
+
+process_video(model, 'video_1.mp4', rows=2, cols=3, scales=[1.25, 1.0, 0.75], threshold=0.99)
+send_telegram_video(file_path='video_1_out.mp4')
+
+process_video(model, 'video_2.mp4', rows=2, cols=2, scales=[1.25, 1.0, 0.9, 0.8, 0.7], threshold=0.9)
+send_telegram_video(file_path='video_2_out.mp4')
 ```
