@@ -82,6 +82,15 @@ A origem destes arquivos vieram da plataforma RoboFlow, onde foi preciso realiza
 
 Estes datasets contém mais imagens de objetos cortantes, onde podemos adicionar à nossa estrutura existente
 
+- https://universe.roboflow.com/tugas-machine-learning-m5kep/tugas-machine-learning-wira-b1/dataset/1/download
+- https://universe.roboflow.com/object-detection-practice-dgcci/cutter-dchc8/dataset/2/download
+- https://universe.roboflow.com/mayank-soni-gwr81/project2.0/dataset/1/download/createml
+- https://universe.roboflow.com/mit-rqoyj/knife-detection-6ihw2/dataset/3/download
+- https://universe.roboflow.com/company-isoyi/company2/dataset/1/download
+- https://universe.roboflow.com/project-cwxdu/knife-detect-jxtjw
+- https://universe.roboflow.com/guns-7wv0t/facas_tesouras
+- https://universe.roboflow.com/lab9-bbqzq/knife-h44d6
+
 ```bash
 unzip -n './Company2.v1i.multiclass.zip' -d dataset_1
 unzip -n './cutter.v2i.multiclass.zip' -d dataset_2
