@@ -1,5 +1,11 @@
 # 🔍 Detecção de objetos cortantes com PyTorch
 
+## Vídeo
+
+
+[![1](https://github.com/user-attachments/assets/3f4f321d-76ae-451f-868f-c87c8f3edddd)](https://www.youtube.com/watch?v=c3emEhj_izc)
+
+
 ## Problema
 
 Utilizar Inteligência Artificial para identificar objetos cortantes (facas, tesouras e similares) e emitir alertas. 
@@ -84,8 +90,8 @@ Estes datasets contém mais imagens de objetos cortantes, onde podemos adicionar
 
 - https://universe.roboflow.com/tugas-machine-learning-m5kep/tugas-machine-learning-wira-b1/dataset/1/download
 - https://universe.roboflow.com/object-detection-practice-dgcci/cutter-dchc8/dataset/2/download
-- https://universe.roboflow.com/mayank-soni-gwr81/project2.0/dataset/1/download/createml
 - https://universe.roboflow.com/mit-rqoyj/knife-detection-6ihw2/dataset/3/download
+- https://universe.roboflow.com/mayank-soni-gwr81/project2.0/dataset/1/download
 - https://universe.roboflow.com/company-isoyi/company2/dataset/1/download
 - https://universe.roboflow.com/project-cwxdu/knife-detect-jxtjw
 - https://universe.roboflow.com/guns-7wv0t/facas_tesouras
@@ -177,21 +183,21 @@ def send_telegram_message(message: str):
 
 ### 1. Arquitetura de camadas
 
-Antes de alimentar o modelo, as imagens são redimensionadas para 128 x 128 px
+Antes de alimentar o modelo, as imagens são redimensionadas para 256 x 256 px
 
 A seguir, a estrutura de camadas (ordem de cima para baixo):
 
 | Camada | Descrição | Entrada | Saída |
 |--|--|--|--|
-| 1. Conv2D | RGB para 1 canal | (B x 128 x 128 x 3) | (B x 128 x 128 x 1) |
-| 2. Conv2D | Extração de features 3x3 | (B x 128 x 128 x 1) | (B x 128 x 128 x 16) |
-| 3. ReLU | Ativações | (B x 128 x 128 x 16) | (B x 128 x 128 x 16) |
-| 4. MaxPool | Redução espacial | (B x 128 x 128 x 16) | (B x 64 x 64 x 16) |
-| 5. Conv2D | Mais extração de features 3x3 | (B x 64 x 64 x 16) | (B x 64 x 64 x 32) |
-| 6. ReLU | Ativações | (B x 64 x 64 x 32) | (B x 64 x 64 x 32) |
-| 7. MaxPool | Redução espacial | (B x 64 x 64 x 32) | (B x 32 x 32 x 32) |
-| 8. Flatten | Achatamento para vetor | (B x 32 x 32 x 32) | (B x 32768) |
-| 9. Linear | Predição final com 1 valor (logit) | (B x 32768) | (B x 1) |
+| 1. Conv2D | RGB para 1 canal | (B x 256 x 256 x 3) | (B x 256 x 256 x 1) |
+| 2. Conv2D | Extração de features 3x3 | (B x 256 x 256 x 1) | (B x 256 x 256 x 16) |
+| 3. ReLU | Ativações | (B x 256 x 256 x 16) | (B x 256 x 256 x 16) |
+| 4. MaxPool | Redução espacial | (B x 256 x 256 x 16) | (B x 128 x 128 x 16) |
+| 5. Conv2D | Mais extração de features 3x3 | (B x 128 x 128 x 16) | (B x 128 x 128 x 32) |
+| 6. ReLU | Ativações | (B x 128 x 128 x 32) | (B x 128 x 128 x 32) |
+| 7. MaxPool | Redução espacial | (B x 128 x 128 x 32) | (B x 64 x 64 x 32) |
+| 8. Flatten | Achatamento para vetor | (B x 64 x 64 x 32) | (B x 131072) |
+| 9. Linear | Predição final com 1 valor (logit) | (B x 131072) | (B x 1) |
 
 Estes foram as definições para a função de *loss* e o modelo de otimização
 ```py
