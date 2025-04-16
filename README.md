@@ -539,7 +539,7 @@ def process_video(
     while True:
         ret, frame = cap.read()
         if not ret:
-            break
+            break  # End of video
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_number += 1
@@ -577,6 +577,10 @@ def process_video(
 
     # 🔔 Telegram summary message
     summary_msg = (
+        f"⛏ Video input size: {IMG_SIZE}\n"
+        f"📐 Rows | Columns: {rows} | {cols}\n"
+        f"🔍 Scales: {scales}\n"
+        f"🌗 Threshold: {threshold}\n"
         f"🔔 Video analysis complete: {video_path}\n"
         f"📹 Total frames: {frame_number}\n"
         f"⚠️ Frames with detections: {detection_frames}\n"
@@ -590,9 +594,11 @@ model = SharpItemDetection().to(device)
 model.load_state_dict(torch.load(MODEL_CHECKPOINT, map_location=device))
 model.eval()
 
-process_video(model, 'video_1.mp4', rows=2, cols=3, scales=[1.25, 1.0, 0.75], threshold=0.99)
+
+process_video(model, 'video_1.mp4', rows=1, cols=1, scales=[1.25, 1.0, 0.9, 0.8, 0.7], threshold=0.8)
 send_telegram_video(file_path='video_1_out.mp4')
 
-process_video(model, 'video_2.mp4', rows=2, cols=2, scales=[1.25, 1.0, 0.9, 0.8, 0.7], threshold=0.9)
+
+process_video(model, 'video_2.mp4', rows=1, cols=1, scales=[1.0, 0.9], threshold=0.85)
 send_telegram_video(file_path='video_2_out.mp4')
 ```
