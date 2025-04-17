@@ -2,8 +2,13 @@
 
 ## Vídeo
 
-
 [![1](https://github.com/user-attachments/assets/3f4f321d-76ae-451f-868f-c87c8f3edddd)](https://www.youtube.com/watch?v=c3emEhj_izc)
+
+## Resultados
+
+[video_1_out.1.webm](https://github.com/user-attachments/assets/f9254d66-8dc6-49c7-9f4a-74ee68cf05c9)
+
+[video_2_out.webm](https://github.com/user-attachments/assets/62dac192-5693-4dbb-b785-1057d00f2531)
 
 
 ## Problema
